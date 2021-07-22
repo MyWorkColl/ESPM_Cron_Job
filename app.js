@@ -1,73 +1,45 @@
 require('dotenv').config();
 const express = require('express');
-const session = require('express-session');
+// const session = require('express-session');
 const path = require('path');
 const db = require('./db');
 
 
 // Routes
-const authGoogleSubRouter = require('./routes/auth-google');
-const brandsSubRouter = require('./routes/brands');
-const categoriesSubRouter = require('./routes/categories');
-const productsSubRouter = require('./routes/products');
-const usersSubRouter = require('./routes/users');
-const cartSubRouter = require('./routes/cart');
+const propertyRouter = require('./routes/property');
+const meterSubRouter = require('./routes/meters');
+const usageSubRouter = require('./routes/usage');
 
 const app = express();
 
-const { User } = db.models;
-
-app.use('/assets', express.static(path.join(__dirname, '../frontend/assets')));
+app.use('/assets', express.static(path.join(__dirname, './src/assets')));
 
 app.use(express.json());
 
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/index.html'));
+  res.sendFile(path.join(__dirname, '../src/index.html'));
 });
 
-app.use((req, res, next) => {
-  const auth = req.headers.authorization;
-  if (!auth) {
-    return next();
-  }
+app.use('/api/property', propertyRouter);
+app.use('/api/meters', meterSubRouter);
+app.use('/api/usage', usageSubRouter);
 
-  User.findByToken(auth)
-    .then((user) => {
-      if (user) {
-        req.user = user;
-      }
-      next();
-    })
-    .catch(next);
-});
+// const routes = {
+//   Property: 'property',
+//   MeterList: 'meters',
+//   Usage: 'usage'
+// };
 
-
-const routes = {
-  Brand: 'brands',
-  Category: 'categories',
-  LineItem: 'lineitems',
-  Order: 'orders',
-  Product: 'products',
-  User: 'users',
-};
-
-// Basic routes are auto-generated here
-// For the rest, use subrouters
-Object.keys(routes).forEach((key) => {
-  app.get(`/api/${routes[key]}`, (req, res, next) => {
-    db.models[key]
-      .findAll()
-      .then((items) => res.send(items))
-      .catch(next);
-  });
-});
-
-app.use('/auth/google', authGoogleSubRouter);
-app.use('/api/brands', brandsSubRouter);
-app.use('/api/categories', categoriesSubRouter);
-app.use('/api/products', productsSubRouter);
-app.use('/api/users', usersSubRouter);
-app.use('/api/cart', cartSubRouter);
+// // Basic routes are auto-generated here
+// // For the rest, use subrouters
+// Object.keys(routes).forEach(key => {
+//   app.get(`/api/${routes[key]}`, (req, res, next) => {
+//     db.models[key]
+//       .findAll()
+//       .then((items) => res.send(items))
+//       .catch(next);
+//   });
+// });
 
 app.use((err, req, res, next) => {
     let message = "Something's not right";
