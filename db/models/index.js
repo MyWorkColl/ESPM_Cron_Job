@@ -1,5 +1,11 @@
-const Account = require('./Account')
+const Property = require('./Property')
+const MeterList = require('./MeterList')
+const MeterInfo = require('./MeterInfo')
+const Usage = require('./Usage')
 
 module.exports = {
-    Account
+    Property,
+    MeterList,
+    MeterInfo,
+    Usage
 }
