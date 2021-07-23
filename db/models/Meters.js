@@ -1,23 +1,22 @@
 "use strict";
 
 module.exports = (sequelize, DataTypes) => {
-	const MeterInfo = sequelize.define(
-		"MeterInfo",
-        {
-            // This is the meter id
+	const MeterList = sequelize.define(
+		"MeterLists",
+		{
+			// This is the meter id
             id: {
 				type: DataTypes.INTEGER,
-                field: "id", 
-                primaryKey: true
+                field: "id",
+                allowNull: false,
 			},
+            name: {
+                type: DataTypes.STRING,
+                field: "name"
+            },
 			type: {
 				type: DataTypes.STRING,
                 field: "type",
-                allowNull: false,
-            },
-            name: {
-                type: DataTypes.STRING,
-                field: "name",
                 allowNull: false,
             },
             unitOfMeasure: {
@@ -49,11 +48,11 @@ module.exports = (sequelize, DataTypes) => {
 		}
 	);
 
-	MeterInfo.createMeterInfo = async meterInfo => {
-		return await MeterInfo.create(meterInfo)
-			.then(meterInfo => meterInfo)
+	MeterList.createMeterList = async meterList => {
+		return await MeterList.create(meterList)
+			.then(meterList => meterList)
 			.catch(err => undefined);
 	};
 
-	return MeterInfo;
+	return MeterList;
 };

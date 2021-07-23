@@ -1,24 +1,26 @@
 require('dotenv').config();
 const express = require('express');
 // const session = require('express-session');
+const app = express();
 const path = require('path');
 const db = require('./db');
-
 
 // Routes
 const propertyRouter = require('./routes/property');
 const meterSubRouter = require('./routes/meters');
 const usageSubRouter = require('./routes/usage');
 
-const app = express();
-
 app.use('/assets', express.static(path.join(__dirname, './src/assets')));
 
 app.use(express.json());
 
+// app.get('/', (req, res) => {
+//   res.sendFile(path.join(__dirname, '../src/index.html'));
+// });
+
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '../src/index.html'));
-});
+  res.send('Create cron job!')
+})
 
 app.use('/api/property', propertyRouter);
 app.use('/api/meters', meterSubRouter);

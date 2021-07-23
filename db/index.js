@@ -1,5 +1,5 @@
 const Sequelize = require("sequelize");
-const { Property, MeterList, MeterInfo, Usage } = require("./models/")
+const { Properties, Meters, Usage } = require("./models/")
 
 require("dotenv").config();
 
@@ -32,9 +32,8 @@ Sequelize.DATE.prototype._stringify = function _stringify(date, options) {
 	return this._applyTimezone(date, options).format("YYYY-MM-DD HH:mm:ss.SSS");
 };
 
-// db.Property = sequelize.import(Property);
-// db.MeterList = sequelize.import(MeterList);
-// db.MeterInfo = sequelize.import(yMeterInfo);
+// db.Properties = sequelize.import(Properties);
+// db.Meters = sequelize.import(Meters);
 // db.Usage = sequelize.import(Usage);
 
 db.Sequelize = Sequelize;

@@ -3,17 +3,14 @@ const express = require("express");
 const bodyParser = require("body-parser")
 const path = require("path");
 const cors = require("cors");
-const app = express();
+
 require("dotenv").config();
-
 const PORT = process.env.SERVER_PORT || 3000;
-// const router = require("./api/routes");
-
+const app = require('./app')
+const db = require("./db");
 const cron = require('node-cron')
 
 let dbState = {};
-
-const db = require("./db");
 
 const db_sync = () => {
 	db.sequelize
@@ -31,11 +28,6 @@ const db_sync = () => {
 };
 
 db_sync();
-
-
-app.get('/', (req, res) => {
-  res.send('Create cron job!')
-})
 
 app.listen(PORT, () => {
   console.log(`Example app listening at http://localhost:${PORT}`)
