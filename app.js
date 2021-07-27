@@ -5,10 +5,13 @@ const app = express();
 const path = require('path');
 const db = require('./db');
 
-// Routes
-const propertyRouter = require('./routes/property');
-const meterSubRouter = require('./routes/meters');
-const usageSubRouter = require('./routes/usage');
+/* Subrouters for authorization */
+app.use("/api", require("./routes/api"));
+
+// // Routes
+// const propertyRouter = require('./routes/property');
+// const meterSubRouter = require('./routes/meter');
+// const usageSubRouter = require('./routes/usage');
 
 app.use('/assets', express.static(path.join(__dirname, './src/assets')));
 
@@ -22,9 +25,9 @@ app.get('/', (req, res) => {
   res.send('Create cron job!')
 })
 
-app.use('/api/property', propertyRouter);
-app.use('/api/meters', meterSubRouter);
-app.use('/api/usage', usageSubRouter);
+// app.use('/api/property', propertyRouter);
+// app.use('/api/meter', meterSubRouter);
+// app.use('/api/usage', usageSubRouter);
 
 // const routes = {
 //   Property: 'property',

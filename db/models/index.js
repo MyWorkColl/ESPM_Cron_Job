@@ -1,9 +1,9 @@
-const Properties = require('./Properties')
-const Meters = require('./Meters')
+const Property = require('./Property')
+const Meter = require('./Meter')
 const Usage = require('./Usage')
 
 module.exports = {
-    Properties,
-    Meters,
+    Property,
+    Meter,
     Usage
 }

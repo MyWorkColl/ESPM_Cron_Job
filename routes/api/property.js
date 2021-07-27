@@ -1,6 +1,6 @@
 const express = require('express');
 const axios = require('axios');
-const { Property } = require('../db/models');
+const { Property } = require('../../db/models');
 require('dotenv').config();
 
 const router = express.Router();
@@ -17,6 +17,7 @@ let json_obj = '';
 
 
 const parseString = require('xml2js').parseString;
+// const { json } = require('sequelize/types');
 
 // //test parseSTring
 // parseString(xml, function (err, result) {
@@ -62,14 +63,14 @@ const parseString = require('xml2js').parseString;
 
 // }
 
-async function getProperty() {
-  return (await axios.get(ESPM_BASE_URL + `/account`, {
-    headers: {
-      'content-type': 'application/xml'
-    },
-    auth 
-  })).data
-}
+// async function getProperty() {
+//   return (await axios.get(ESPM_BASE_URL + `/account`, {
+//     headers: {
+//       'content-type': 'application/xml'
+//     },
+//     auth 
+//   })).data
+// }
     
 // getProperty()
 //   .then(xml => {
@@ -86,20 +87,59 @@ async function getProperty() {
 //   .catch(err => console.log(err))
 
 
-router.post('/', (req, res, next) => {
-  getProperty()
-  .then(xml => {
+// router.post('/', (req, res, next) => {
+//   getProperty()
+//   .then(xml => {
     
-    let json_res = '';
-    let json_obj = '';
+//     let json_res = '';
+//     let json_obj = '';
     
-    parseString(xml, function (err, result) {
-      json_res = JSON.stringify(result, null, 2)
-      json_obj = JSON.parse(json_res)
-    })
-    res.send(json_obj.account)
-  })
-  .catch(err => console.log(err))
-});
+//     parseString(xml, function (err, result) {
+//       json_res = JSON.stringify(result, null, 2)
+//       json_obj = JSON.parse(json_res)
+//     })
+//     res.send(json_obj.account)
+//   })
+//   .catch(err => console.log(err))
+// });
 
+router.post('/', (req, res, next) => {
+  axios.get(ESPM_BASE_URL + `/account`, {
+    headers: {
+      'content-type': 'application/xml'
+    },
+    auth 
+  })
+    .then(response => response.data)
+    .then(xml => {
+      let json_res = '';
+      let json_obj = '';
+
+      parseString(xml, function (err, results) {
+        // Is this necessary?
+        if (err) {
+          throw err;
+        }
+        json_res = JSON.stringify(results, null, 2)
+        json_obj = JSON.parse(json_res)
+      })
+
+      res.send(json_obj.account)
+    })
+    .catch((error) =>
+      {
+        // Handling errors using promises 
+        if (error.response) {
+            console.log(error.response.data);
+            console.log(error.response.status);
+            console.log(error.response.headers);
+        } else if (error.request) {
+            console.log(error.request);
+        } else {
+            // Something happened in setting up the request and triggered an Error
+            console.log('Error', error.message);
+        }
+        console.log(error.config);
+    })
+})
 module.exports = router;

@@ -1,45 +1,39 @@
 "use strict";
 
-module.exports = (sequelize, DataTypes) => {
-	const Usage = sequelize.define(
-		"Usages",
-		{
-			// This is the meter id
-            id: {
-				type: DataTypes.INTEGER,
-                field: "id",
-                primaryKey: true
-            },
-            estimatedValue: {
-                type: DataTypes.BOOLEAN,
-                field: "estimatedValue"
-            },
-			startDate: {
-				type: DataTypes.DATEONLY ,
-				field: "startDate"
-			},
-			endDate: {
-				type: DataTypes.DATEONLY ,
-				field: "endDate"
-            },
-            usage: {
-                type: DataTypes.INTEGER,
-                field: "usage",
-                allowNull: false,
-            }
+const connection = require("../connection");
+const { Sequelize } = connection;
+const { INTEGER, DATEONLY, BOOLEAN } = Sequelize;
+
+const Usage = connection.define(
+	"Usage",													
+	{
+		// This is the meter id
+		id: {
+			type: INTEGER,
+			field: "id",
+			primaryKey: true
 		},
-		{
-			timestamps: true,
-			createdAt: "createdDate",
-			updatedAt: "modifiedDate"
+		estimatedValue: {
+			type: BOOLEAN,
+			field: "estimatedValue"
+		},
+		startDate: {
+			type: DATEONLY ,
+			field: "startDate"
+		},
+		endDate: {
+			type: DATEONLY ,
+			field: "endDate"
+		},
+		usage: {
+			type: INTEGER,
+			field: "usage",
+			allowNull: false,
 		}
-	);
-
-	Usage.createUsage = async usage => {
-		return await Usage.create(usage)
-			.then(usage => usage)
-			.catch(err => undefined);
-	};
-
-	return Usage;
-};
+	},
+	{
+		schema : 'ESPM' ,
+		timestamps: true
+	}					
+);
+module.exports = Usage
