@@ -93,23 +93,18 @@ const parseString = require('xml2js').parseString;
 // console.log(meters)
 
 
-router.post('/', (req, res, next) => {
+router.get('/', (req, res, next) => {
     try {
         
         // Handle 'Get Associated Property Meters' api response
-        const xml = '<?xml version="1.0" encoding="UTF-8"?><meterPropertyAssociationList>'
-                +'<energyMeterAssociation>'
-                +'<meters>'
-                +'<meterId>1</meterId>'
-                +'<meterId>2</meterId>'
-                +'</meters>'
-                +'<propertyRepresentation>'
-                +'<propertyRepresentationType>Whole Property</propertyRepresentationType>'
-                +'</propertyRepresentation>'
-                +'</energyMeterAssociation>'
-                +'<waterMeterAssociation><meters><meterId>10</meterId><meterId>20</meterId></meters><propertyRepresentation><propertyRepresentationType>Whole Property</propertyRepresentationType>'
-                +'</propertyRepresentation></waterMeterAssociation>'
-                + '<wasteMeterAssociation><meters><meterId>100</meterId><meterId>200</meterId></meters></wasteMeterAssociation></meterPropertyAssociationList>'
+        const xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><meterPropertyAssociationList>'
+            +'<energyMeterAssociation><meters><meterId>2405821</meterId><meterId>2405866</meterId><meterId>2535377</meterId><meterId>2548776</meterId>'
+            +'<meterId>5262730</meterId><meterId>12272470</meterId><meterId>12272471</meterId><meterId>12272472</meterId><meterId>20668451</meterId>'
+            + '<meterId>20668992</meterId><meterId>21880194</meterId></meters><propertyRepresentation>'
+            +'< propertyRepresentationType > Whole Property</propertyRepresentationType></propertyRepresentation ></energyMeterAssociation>'
+            +'<waterMeterAssociation><meters><meterId>6005104</meterId></meters><propertyRepresentation><propertyRepresentationType>Whole Property</propertyRepresentationType>'
+            +'</propertyRepresentation></waterMeterAssociation><wasteMeterAssociation><meters><meterId>55593078</meterId><meterId>55593121</meterId>'
+            +'</meters></wasteMeterAssociation></meterPropertyAssociationList>'
         
         let meters = []
         let associationList = []

@@ -16,7 +16,7 @@ const parseString = require('xml2js').parseString;
 
 
 // ESPM get request : /meter/(meterId)/consumptionData?page=(page)&startDate=(YYYY-MM-DD)&endDate=(YYYY-MM-DD)
-router.post('/', (req, res, next) => {
+router.get('/', (req, res, next) => {
 	try {
 		// Handle 'Get Associated Property Meters' api response
 		xml =
