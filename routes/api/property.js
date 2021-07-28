@@ -138,7 +138,7 @@ const parseString = require('xml2js').parseString;
 //     })
 // })
 
-router.get('/', (req, res, next) => {
+router.post('/', (req, res, next) => {
 	try {
 		// Handle 'Get Associated Property Meters' api response
 		const xml =
@@ -272,20 +272,15 @@ router.get('/', (req, res, next) => {
 					let {
 						name,
 						address,
-						city,
-						postalCode,
-						state,
-						country,
 						numberOfBuildings,
 						yearBuilt,
 						grossFloorArea,
-						grossFloorAreaUnits,
 						occupancyPercentage,
 						isFederalProperty,
 						notes
 					} = propertyDetail;
 
-					properties.push({
+					let property_obj = {
 						id: id,
 						name: name.toString(),
 						streetAddress: address[0]['$'].address1,
@@ -300,17 +295,32 @@ router.get('/', (req, res, next) => {
 						occupancyPercentage: occupancyPercentage.toString(),
 						isFederalProperty: isFederalProperty.toString(),
 						notes: notes.toString(),
-					});
-
+					};
+						
+					properties.push(property_obj);
 				});
 			});
 
-			// Save meters data in to SQL server
-			res.send(properties);
+			Property.bulkCreate(
+				properties.map(property => (property)),
+				{returning: true}
+			)
+				.then(propertyList => {
+					res.send(properties);
+				})
+				.catch(next)
+				;
 		});
 	} catch (error) {
 		console.log(error);
 	}
 });
 
+
+router.get('/', (req, res, next) => {
+  Property.findAll()
+    .then(properties => res.send(properties))
+  .catch(next)
+
+})
 module.exports = router;
