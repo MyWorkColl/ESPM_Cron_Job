@@ -321,6 +321,6 @@ router.get('/', (req, res, next) => {
   Property.findAll()
     .then(properties => res.send(properties))
   .catch(next)
-
 })
+
 module.exports = router;

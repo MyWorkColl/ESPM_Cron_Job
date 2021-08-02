@@ -1,6 +1,6 @@
 const express = require('express');
 const axios = require('axios');
-const { Meters } = require('../../db/models');
+const { Meter } = require('../../db/models');
 require('dotenv').config();
 
 const router = express.Router();
@@ -90,10 +90,8 @@ const parseString = require('xml2js').parseString;
 //     }
 // })
 
-// console.log(meters)
 
-
-router.get('/', (req, res, next) => {
+router.post('/', (req, res, next) => {
     try {
         
         // Handle 'Get Associated Property Meters' api response
@@ -165,5 +163,10 @@ router.get('/', (req, res, next) => {
     }
 })
 
+router.get('/', (req, res, next) => {
+	Meter.findAll()
+		.then((meter) => res.send(meter))
+		.catch(next);
+});
 
 module.exports = router;

@@ -3,7 +3,7 @@ const router = express.Router()
 
 
 const axios = require('axios');
-const { Meters } = require('../../db/models');
+const { Usage } = require('../../db/models');
 require('dotenv').config();
 
 router.use(express.json());
@@ -16,7 +16,7 @@ const parseString = require('xml2js').parseString;
 
 
 // ESPM get request : /meter/(meterId)/consumptionData?page=(page)&startDate=(YYYY-MM-DD)&endDate=(YYYY-MM-DD)
-router.get('/', (req, res, next) => {
+router.post('/', (req, res, next) => {
 	try {
 		// Handle 'Get Associated Property Meters' api response
 		xml =
@@ -75,6 +75,12 @@ router.get('/', (req, res, next) => {
 	} catch (error) {
 		console.log(error);
 	}
+});
+
+router.get('/', (req, res, next) => {
+	Usage.findAll()
+		.then((usage) => res.send(usage))
+		.catch(next);
 });
 
 module.exports = router;
