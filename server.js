@@ -13,13 +13,13 @@ const https = require('https');
 const fs = require("fs");
 
 
-
 const startUpCallback = () => console.log(`listening on port ${PORT}`)
 
 console.log(process.env.NODE_ENV);
+
 db.sync()
 	.then(() => {
-		if (process.env.NODE_ENV == "production") {
+		if (process.env.NODE_ENV == "development") {
 			app.listen(PORT, startUpCallback);
 		} else {
 
@@ -32,7 +32,7 @@ db.sync()
 				options,
 				app
 			)
-				.listen(PORT, startUpCallback);
+			.listen(PORT, startUpCallback);
 		}
 })
 	

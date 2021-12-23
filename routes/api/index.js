@@ -9,5 +9,4 @@ router.use('/meter', require("./meter"));
 /* router for usage api */
 router.use('/usage', require("./usage"));
 
-
 module.exports = router;

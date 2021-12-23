@@ -8,7 +8,7 @@ require('dotenv').config();
 
 router.use(express.json());
 
-const { ESPM_USERNAME, ESPM_PW, ESPM_BASE_URL } = process.env;
+const { ESPM_USERNAME, ESPM_PW, BASE_URL } = process.env;
 const auth = { username: ESPM_USERNAME, password: ESPM_PW };
 
 // Test xml parse

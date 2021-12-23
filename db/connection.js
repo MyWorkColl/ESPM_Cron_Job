@@ -28,7 +28,7 @@ connection.getQueryInterface().showAllTables().then(function (tables) {
 });
 
 Sequelize.DATE.prototype._stringify = function _stringify(date, options) {
-	return this._applyTimezone(date, options).format("YYYY-MM-DD HH:mm:ss.SSS");
+	return this._applyTimezone(date, options).format("YYYY-MM-DD HH:mm:ss");
 };
 
 Connection.Sequelize = Sequelize

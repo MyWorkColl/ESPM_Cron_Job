@@ -2,7 +2,7 @@
 
 const connection = require('../connection');
 const { Sequelize } = connection;
-const { INTEGER, STRING, BOOLEAN, FLOAT } = Sequelize;
+const { INTEGER, STRING, BOOLEAN, FLOAT, TEXT } = Sequelize;
 
 const Property = connection.define(
 	'Property',
@@ -61,12 +61,8 @@ const Property = connection.define(
 			type: BOOLEAN,
 			field: 'isFederalProperty',
 		},
-		isInstitutionalProperty: {
-			type: BOOLEAN,
-			field: 'isInstitutionalProperty',
-		},
 		notes: {
-			type: STRING,
+			type: TEXT,
 			field: 'notes',
 		},
 	},
@@ -76,11 +72,22 @@ const Property = connection.define(
 	}
 );
 
-Property.createProperty = function (property) {
-	return Property.findOrCreate({
-		where: { id: Property.id },
-		defaults: Property
+Property.updateOrCreate = function (property) {
+	const where = { id: property.id };
+
+	return Property.findOne({
+		where
+	})
+	.then(found => {
+		if (!found) {
+			return Property.create(property)
+		}
+		return Property.update(property, {where})
 	})
 };
 
+Property.getIdList = async function() {
+	const list = await Property.findAll()
+	return list.map(item => item.id)
+}
 module.exports = Property
