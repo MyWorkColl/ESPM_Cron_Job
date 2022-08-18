@@ -160,8 +160,9 @@ router.post('/', async (req, res, next) => {
                                                 PropertyId: propertyId,
                                             };
 
-                            // Meter.findOrCreate({ where: { id } });
+                            Meter.updateOrCreate(meter_obj);
                             meters.push(meter_obj);
+                            return meter_obj;
                         });
                     })
                 })

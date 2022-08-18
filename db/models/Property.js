@@ -90,4 +90,5 @@ Property.getIdList = async function() {
 	const list = await Property.findAll()
 	return list.map(item => item.id)
 }
+
 module.exports = Property

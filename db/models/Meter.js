@@ -4,7 +4,7 @@ const { Sequelize} = connection;
 const { INTEGER, STRING, DATEONLY } = Sequelize;
 
 const Meter = connection.define(
-	'meter',
+	'Meter',
 	{
 		// This is the meter id
 		id: {
@@ -19,17 +19,17 @@ const Meter = connection.define(
 		type: {
 			type: STRING,
 			field: 'type',
-			allowNull: false,
+			allowNull: true,
 		},
 		associationGroup: {
 			type: STRING,
 			field: 'type',
-			allowNull: false,
+			allowNull: true,
 		},
 		unitOfMeasure: {
 			type: STRING,
 			field: 'unitOfMeasure',
-			allowNull: false,
+			allowNull: true,
 		},
 		metered: {
 			type: STRING,
@@ -54,5 +54,23 @@ const Meter = connection.define(
 		timestamps: true,
 	}
 );
+
+Meter.updateOrCreate = function (meter) {
+	const where = { id: meter.id };
+
+	return Meter.findOne({
+		where,
+	}).then((found) => {
+		if (!found) {
+			return Meter.create(meter);
+		}
+		return Meter.update(meter, { where });
+	});
+};
+
+Meter.getIdList = async function () {
+	const list = await Meter.findAll();
+	return list.map((item) => item.id);
+};
 
 module.exports = Meter;
