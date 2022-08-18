@@ -36,4 +36,23 @@ const Usage = connection.define(
 		timestamps: true
 	}					
 );
+
+Usage.updateOrCreate = function (usage) {
+	const where = { id: usage.id };
+
+	return Usage.findOne({
+		where,
+	}).then((found) => {
+		if (!found) {
+			return Usage.create(usage);
+		}
+		return Usage.update(usage, { where });
+	});
+};
+
+Usage.getIdList = async function () {
+	const list = await Usage.findAll();
+	return list.map((item) => item.id);
+};
+
 module.exports = Usage
