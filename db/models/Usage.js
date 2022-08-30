@@ -2,39 +2,42 @@
 
 const connection = require("../connection");
 const { Sequelize } = connection;
-const { INTEGER, DATEONLY, BOOLEAN } = Sequelize;
+const { DECIMAL, DATEONLY, BOOLEAN, STRING } = Sequelize;
 
 const Usage = connection.define(
-	"Usage",													
+	'Usage',
 	{
 		// This is the meter id
 		id: {
-			type: INTEGER,
-			field: "id",
-			primaryKey: true
+			type: STRING,
+			field: 'id',
+			primaryKey: true,
 		},
 		estimatedValue: {
 			type: BOOLEAN,
-			field: "estimatedValue"
+			field: 'estimatedValue',
+		},
+		cost: {
+			type: STRING,
+			field: 'cost',
 		},
 		startDate: {
-			type: DATEONLY ,
-			field: "startDate"
+			type: DATEONLY,
+			field: 'startDate',
 		},
 		endDate: {
-			type: DATEONLY ,
-			field: "endDate"
+			type: DATEONLY,
+			field: 'endDate',
 		},
 		usage: {
-			type: INTEGER,
-			field: "usage",
-			allowNull: false,
-		}
+			type: STRING,
+			field: 'usage',
+		},
 	},
 	{
-		schema : 'ESPM' ,
-		timestamps: true
-	}					
+		schema: 'ESPM',
+		timestamps: true,
+	}
 );
 
 Usage.updateOrCreate = function (usage) {

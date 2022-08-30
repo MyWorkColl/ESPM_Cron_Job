@@ -6,7 +6,7 @@ const path = require('path');
 const db = require('./db');
 
 /* Subrouters for authorization */
-app.use("/api", require("./routes/api"));
+app.use('/api', require('./api/routes'));
 
 // // Routes
 // const propertyRouter = require('./routes/property');

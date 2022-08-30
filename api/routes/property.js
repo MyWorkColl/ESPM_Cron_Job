@@ -1,6 +1,7 @@
 const express = require('express');
 const axios = require('axios');
 const { Property } = require('../../db/models');
+const { config } = require('dotenv');
 require('dotenv').config();
 
 const router = express.Router();
@@ -12,18 +13,23 @@ const auth = { 'username': ESPM_USERNAME, 'password': ESPM_PW}
 const parseString = require('xml2js').parseString;
 
 router.post('/', async (req, res, next) => {
+	const config = {
+		headers: {
+			'content-type': 'application/xml',
+		},
+		auth,
+	};
+
+	
 	try {
 		// Handle 'Get Properties' api response
 		const response = await axios.get(
 			BASE_URL + `/account/${ESPM_ACCOUNT_ID}/property/list`,
-			{
-				headers: {
-					'content-type': 'application/xml',
-				},
-				auth,
-			}
-		);
-		const xml = response.data
+			config
+			);
+			const xml = response.data
+			
+			let properties = [];
 
 		parseString(xml, function (err, result) {
 			if (err) {
@@ -35,20 +41,15 @@ router.post('/', async (req, res, next) => {
 			json_obj = json_obj.response.links[0].link;
 			propertyList = json_obj;
 
-			let properties = [];
 
 			const test = propertyList.forEach(async (item) => {
 				const propertyId = parseInt(item['$'].id);
 
 				const propertyDetail = await axios.get(
 					BASE_URL + `/property/${propertyId}`,
-					{
-						headers: {
-							'content-type': 'application/xml',
-						},
-						auth,
-					}
+					config
 				);
+				
 				const xml_2 = propertyDetail.data;
 
 				parseString(xml_2, function (err, result) {
@@ -97,24 +98,15 @@ router.post('/', async (req, res, next) => {
 						notes: notes ? notes.toString() : '',
 					};
 
-					Property.updateOrCreate(property_obj);
+					// Property.updateOrCreate(property_obj);
 					properties.push(property_obj);
-					return property_obj
+					// return properties
 				});
+				// res.send(properties)
 			});
-
-			res.status(400).send('Property information created or updated.')
-
-			// Property.bulkCreate(
-			// 	properties.map((property) => property),
-			// 	{ returning: true }
-			// )
-			// .then((propertyList) => {
-			// 	res.send(propertyList);
-			// })
-			// .catch(next);
 		});
 				
+		
 	} catch (error) {
 		console.log(error)
 	}

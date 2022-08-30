@@ -9,7 +9,7 @@ const Property = connection.define(
 	{
 		// This is property id
 		id: {
-			type: INTEGER,
+			type: STRING,
 			field: 'id',
 			primaryKey: true,
 		},

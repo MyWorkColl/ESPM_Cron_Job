@@ -23,7 +23,7 @@ const Meter = connection.define(
 		},
 		associationGroup: {
 			type: STRING,
-			field: 'type',
+			field: 'associationGroup',
 			allowNull: true,
 		},
 		unitOfMeasure: {
@@ -49,7 +49,6 @@ const Meter = connection.define(
 		},
 	},
 	{
-		
 		schema: 'ESPM',
 		timestamps: true,
 	}

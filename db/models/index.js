@@ -9,6 +9,9 @@ Meter.belongsTo(Property)
 Meter.hasMany(Usage)
 Usage.belongsTo(Meter)
 
+Property.hasMany(Usage)
+Usage.belongsTo(Property)
+
 module.exports = {
     Property,
     Meter,
