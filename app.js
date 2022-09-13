@@ -9,9 +9,9 @@ const db = require('./db');
 app.use('/api', require('./api/routes'));
 
 // // Routes
-// const propertyRouter = require('./routes/property');
-// const meterSubRouter = require('./routes/meter');
-// const usageSubRouter = require('./routes/usage');
+// const propertyRouter = require('./api/routes/property');
+// const meterSubRouter = require('./api/routes/meter');
+// const usageSubRouter = require('./api/routes/usage');
 
 app.use('/assets', express.static(path.join(__dirname, './src/assets')));
 

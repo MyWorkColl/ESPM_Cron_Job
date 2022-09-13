@@ -112,7 +112,7 @@ router.post('/', async (req, res, next) => {
                 config
             );
             const xml = response.data;
-
+            console.log(xml)
             parseString(xml, function (err, result) {
                 if (err) {
                     throw err;
