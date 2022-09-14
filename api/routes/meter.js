@@ -1,6 +1,7 @@
 const express = require('express');
 const axios = require('axios');
 const { Meter, Property } = require('../../db/models');
+const parser = require('xml2json');
 require('dotenv').config();
 
 const router = express.Router();
@@ -10,7 +11,6 @@ const { ESPM_USERNAME, ESPM_PW, BASE_URL } = process.env;
 const auth = { 'username': ESPM_USERNAME, 'password': ESPM_PW}
 
 // Test xml parse
-const parseString = require('xml2js').parseString;
 // const xml = '<?xml version="1.0" encoding="UTF-8"?><meterPropertyAssociationList>'
 //                 +'<energyMeterAssociation>'
 //                 +'<meters>'
@@ -93,8 +93,7 @@ const parseString = require('xml2js').parseString;
 
 router.post('/', async (req, res, next) => {
     try {
-        let meterData = [];
-        let associationList = [];
+        // let meterData = [];
 
         const config = {
 					headers: {
@@ -103,85 +102,236 @@ router.post('/', async (req, res, next) => {
 					auth,
 				};
         
+        const options = {
+					object: true,
+        };
+        
         // const propertyIdList = await Property.getIdList()
-        propertyIdList = [1677104, 1472861];
+        propertyIdList = [1677104, 2303907];
 
-        propertyIdList.forEach(async (propertyId) => {
-            const response = await axios.get(
+        let association = propertyIdList.map((propertyId) => {
+
+            return axios.get(
                 BASE_URL + `/association/property/${propertyId}/meter`,
                 config
-            );
-            const xml = response.data;
-            console.log(xml)
-            parseString(xml, function (err, result) {
-                if (err) {
-                    throw err;
-                }
+            )
+                .then(response => parser.toJson(response.data, options))
+                .then(associationObj => {
+                    let { meterPropertyAssociationList } = associationObj
+                    let meterList = []
+                    associationList = Object.keys(meterPropertyAssociationList);
+                    // console.log(meterPropertyAssociationList);
 
-                let json_res = JSON.stringify(result, null, 2);
-                let json_obj = JSON.parse(json_res);
-                json_obj = json_obj.meterPropertyAssociationList;
-                associationList = Object.keys(json_obj);
 
-                associationList.forEach((item) => {
-                    console.log(`${propertyId} -----> ${item}--> ${json_obj[item][0].meters[0].meterId}`);
-
-                    if (item != 'wasteMeterAssociation') {
-                        // Get the list of meter id for each association (energyMeterAssociation, waterMeterAssociation, wasteMeterAssociation)
-                        let arr = json_obj[item][0].meters[0].meterId;
-                    
-                        arr.forEach(async (meterId) => {
-                            // Replace this to axios get request
-                            const response_2 = await axios.get(
-                                BASE_URL + `/meter/${meterId}`,
-                                config
-                            );
-                            const xml_2 = response_2.data;
-
-                            parseString(xml_2, function (err, result) {
-                                if (err) {
-                                    throw err;
-                                }
-
-                                let json_res = JSON.stringify(result, null, 2);
-                                let json_obj = JSON.parse(json_res);
-                                let meterDetail = json_obj.meter;
-                                let {
-                                    id,
-                                    name,
-                                    type,
-                                    unitOfMeasure,
-                                    metered,
-                                    firstBillDate,
-                                    inUse,
-                                    accessLevel,
-                                } = meterDetail;
-                                let meter_obj = {
-                                    id: id.toString(),
-                                    name: name.toString(),
-                                    type: type.toString(),
-                                    associationGroup:  item,
-                                    unitOfMeasure: unitOfMeasure.toString(),
-                                    metered: metered.toString(),
-                                    firstBillDate: firstBillDate.toString(),
-                                    inUse: inUse.toString(),
-                                    accessLevel: accessLevel.toString(),
-                                    PropertyId: propertyId,
-                                };
-
-                                console.log(meter_obj);
-                                Meter.updateOrCreate(meter_obj);
-                                // meterData.push(meter_obj);
+                    return associationList
+                        .filter((item) => item != 'wasteMeterAssociation')
+                        .map((associationGroup) => {
+                            let { meters } = meterPropertyAssociationList[`${associationGroup}`];
+                            let { propertyRepresentation } = meterPropertyAssociationList[`${associationGroup}`]
+                            let meterId = Array.isArray(meters.meterId)
+															? meters.meterId
+															: [meters.meterId];
+                            
+                            return ({
+                                propertyId,
+                                associationGroup,
+                                meterId,
+                                propertyRepresentation: propertyRepresentation.propertyRepresentationType,
                             });
-                        });
-                    }    
-                });
-            });
-            
+                        })
+                    
+                })
+        })
+
+        const associatedMeterList = await Promise.all(association)
+            .then(values => {
+                let associatedMeter = values.reduce((accum, curVal) =>
+                                accum.concat(curVal)
+                            );
+                let meterIdList = [];
+                
+                associatedMeter.forEach(item => {
+                    item['meterId'].forEach(id => {
+											// return (
+											//     axios.get(BASE_URL + `/meter/${id}`, config)
+											//         .then(xml => {
+											//             let jsonData = parser.toJson(
+											//                 xml.data,
+											//                 options
+											//             );
+											//             let meterData = jsonData.meter;
+											//             let meterDataObj = {
+											//                                     id,
+											//                                     name: meterData.name,
+											//                                     type: meterData.type,
+											//                                     associationGroup: item.associationGroup,
+											//                                     unitOfMeasure: meterData.unitOfMeasure,
+											//                                     metered: meterData.metered,
+											//                                     firstBillDate: meterData.firstBillDate,
+											//                                     inUse: meterData.inUse,
+											//                                     accessLevel: meterData.accessLevel,
+											//                                     propertyRepresentation:item.propertyRepresentation,
+											//                                     PropertyId: item.propertyId,
+											//                                 };
+											//             // console.log(meterDataObj);
+											//             meterIdList.push(meterDataObj);
+											//             // return(meterDataObj)
+											//         })
+											// )
+
+											// let meterDataObj = {
+											// 	id,
+											// 	associationGroup: item.associationGroup,
+											// 	propertyRepresentation: item.propertyRepresentation,
+											// 	propertyId: item.propertyId,
+											// };
+
+                                            
+                                            meterIdList.push({
+																							id,
+																							associationGroup:
+																								item.associationGroup,
+																							propertyRepresentation:
+																								item.propertyRepresentation,
+																							propertyId: item.propertyId,
+																						});
+										})
+                })
+                // return meterIdList;
+                return meterIdList.map(async item => { 
+                    let xml = await axios.get(BASE_URL + `/meter/${item.id}`, config);
+                    let jsonData = parser.toJson(xml.data, options);
+                    let meterData = jsonData.meter;
+                    let meterDataObj = {
+                        id: item.id,
+                        name: meterData.name,
+                        type: meterData.type,
+                        associationGroup: item.associationGroup,
+                        unitOfMeasure: meterData.unitOfMeasure,
+                        metered: meterData.metered,
+                        firstBillDate: meterData.firstBillDate,
+                        inUse: meterData.inUse,
+                        accessLevel: meterData.accessLevel,
+                        propertyRepresentation: item.propertyRepresentation,
+                        PropertyId: item.propertyId,
+                    };
+                    Meter.updateOrCreate(meterDataObj);
+                    // console.log(meterDataObj);
+                    return meterDataObj;
+                })
+                
         });
-        res.status(400).send('Property information created or updated.');
+        let results = await Promise.all(associatedMeterList);
+
+        res.send(results);
+
+        // console.log(meterIdList);
+
+        // let meterDetail = meterIdList.forEach(item => {
+        //     console.log(item.id)
+            // return axios
+            //     .get(BASE_URL + `/meter/${item.id}`, config)
+        //         .then((response) => {
+                    // let jsonData = parser.toJson(response.data, options)
+
+                    // let { data } = jsonData;
+                    // let meterData = data.meter
+                    // let meterDataObj = {
+					// 						id: item.id,
+					// 						name: meterData.name,
+					// 						type: meterData.type,
+					// 						associationGroup: item.associationGroup,
+					// 						unitOfMeasure: meterDataunitOfMeasure,
+					// 						metered: meterData.metered,
+					// 						firstBillDate: meterData.firstBillDate,
+					// 						inUse: meterData.inUse,
+                    //                         accessLevel: meterData.accessLevel,
+                    //                         propertyRepresentation:item.propertyRepresentation,
+					// 						PropertyId: item.propertyId,
+					// 					};
+                    // console.log(meterDataObj);                                
+        //             return meterDataObj;
+        //         });
+        // });
+
+        // const results = await Promise.all(meterDetail);
+        // res.send(results);
+            
+            
+            // const dataObj = parser.toJson(data, options);
+            // // let meterData = dataObj.response;
+            // console.log(dataObj);
+
+            // parseString(xml, function (err, result) {
+            //     if (err) {
+            //         throw err;
+            //     }
+
+            //     let json_res = JSON.stringify(result, null, 2);
+            //     let json_obj = JSON.parse(json_res);
+            //     json_obj = json_obj.meterPropertyAssociationList;
+            //     associationList = Object.keys(json_obj);
+
+        //         associationList.forEach((item) => {
+        //             console.log(`${propertyId} -----> ${item}--> ${json_obj[item][0].meters[0].meterId}`);
+
+        //             if (item != 'wasteMeterAssociation') {
+        //                 // Get the list of meter id for each association (energyMeterAssociation, waterMeterAssociation, wasteMeterAssociation)
+        //                 let arr = json_obj[item][0].meters[0].meterId;
+                    
+        //                 arr.forEach(async (meterId) => {
+        //                     // Replace this to axios get request
+        //                     const response_2 = await axios.get(
+        //                         BASE_URL + `/meter/${meterId}`,
+        //                         config
+        //                     );
+        //                     const xml_2 = response_2.data;
+
+        //                     parseString(xml_2, function (err, result) {
+        //                         if (err) {
+        //                             throw err;
+        //                         }
+
+        //                         let json_res = JSON.stringify(result, null, 2);
+        //                         let json_obj = JSON.parse(json_res);
+        //                         let meterDetail = json_obj.meter;
+        //                         let {
+        //                             id,
+        //                             name,
+        //                             type,
+        //                             unitOfMeasure,
+        //                             metered,
+        //                             firstBillDate,
+        //                             inUse,
+        //                             accessLevel,
+        //                         } = meterDetail;
+            
+        //                         let meter_obj = {
+        //                             id: id.toString(),
+        //                             name: name.toString(),
+        //                             type: type.toString(),
+        //                             associationGroup:  item,
+        //                             unitOfMeasure: unitOfMeasure.toString(),
+        //                             metered: metered.toString(),
+        //                             firstBillDate: firstBillDate.toString(),
+        //                             inUse: inUse.toString(),
+        //                             accessLevel: accessLevel.toString(),
+        //                             PropertyId: propertyId,
+        //                         };
+
+        //                         console.log(meter_obj);
+        //                         Meter.updateOrCreate(meter_obj);
+        //                         // meterData.push(meter_obj);
+        //                     });
+        //                 });
+        //     //         }    
+        //     //     });
+        //     // });
+            
+        // });
+            // res.status(400).send('Property information created or updated.');
 		} catch (error) {
-        console.log(error)
+        console.log(error);
     }
 })
 

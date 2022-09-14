@@ -47,6 +47,10 @@ const Meter = connection.define(
 			type: STRING,
 			field: 'accessLevel',
 		},
+		propertyRepresentation: {
+			type: STRING,
+			field: 'propertyRepresentation',
+		},
 	},
 	{
 		schema: 'ESPM',
