@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const moment = require('moment');
 const axios = require('axios');
+const parser = require('xml2json');
 
 const { Usage, Meter } = require('../../db/models');
 require('dotenv').config();
@@ -23,74 +24,84 @@ router.post('/', async (req, res, next) => {
 		auth,
 	};
 
+	const options = {
+		object: true,
+	};
+
 	const endDate = moment().format('YYYY-MM-DD');
 	const startDate = moment().subtract(3, 'months').format('YYYY-MM-DD');
 	
 	console.log(`duration from ${startDate} to ${endDate}`)
 
+	// let meterReading = [];
 	try {
 		// Handle 'Get Associated Property Meters' api response
 		const response = await axios.get(
 			My_DOMAIN + `/api/meter`
 		);
-
+		
 		const data = response.data;
-		let meterDataObj = {};
-		data.map((item) => (meterDataObj[item.id] = item.PropertyId));
-		const meterIdArray = Object.keys(meterDataObj);
+		
+		let meterIdArray = data.map((item) => item.id);
+
+		console.log(`meter id list is ---->${meterIdArray}`)
 
 		// Handle 'Get Meter Consumption Data' API call
-		meterIdArray.forEach(async (meterId) => {
-			const response = await axios.get(
-				BASE_URL +
-					`/meter/${meterId}/consumptionData?page=1&startDate=${startDate}&endDate=${endDate}`,
-				config
-			);
-			const xml2 = response.data;
-			let meterReading = [];
+		let usages = data.map(item => {
+			let meterId = item.id;
+			let PropertyId = item.PropertyId;
 
-			parseString(xml2, async function (err, result) {
-				if (err) {
-					throw err;
-				}
+			return axios
+				.get(
+					BASE_URL +
+						`/meter/${meterId}/consumptionData?page=1&startDate=${startDate}&endDate=${endDate}`,
+					config
+				)
+				.then((response) => parser.toJson(response.data, options))
+				.then(data => {
 
-				json_res = JSON.stringify(result, null, 2);
-				json_obj = JSON.parse(json_res);
-				json_obj = json_obj.meterData;
-				obj_keys = Object.keys(json_obj);
+					if (
+						typeof data.meterData === 'undefined' ||
+						typeof data.meterData.meterConsumption == 'undefined'
+					) {
+						console.log(`no usage data for ${meterId}`);
+					} else {
+						let { meterConsumption } = data.meterData;
+						
+						meterConsumption = Array.isArray(meterConsumption)
+							? meterConsumption
+							: [meterConsumption];
+						// return { meterId, meterConsumption };
+						return meterConsumption.map(meterUsage => {
+							let { id, estimatedValue, cost, startDate, endDate, usage } =
+								meterUsage;
 
-				if (obj_keys.includes('meterConsumption')) {
-					json_obj = json_obj.meterConsumption;
+							let meterReadingObj = {
+								id,
+								estimatedValue,
+								cost,
+								startDate,
+								endDate,
+								usage,
+								MeterId: meterId,
+								PropertyId,
+							};
 
-					json_obj.forEach((reading) => {
-						let { id, cost, startDate, endDate, usage } = reading;
-
-						meterReading_obj = {
-							id: id.toString(),
-							estimatedValue: reading['$'].estimatedValue,
-							cost: cost ? cost.toString() : '',
-							startDate: startDate ? startDate.toString() : '',
-							endDate: endDate ? endDate.toString() : '',
-							usage: usage ? usage.toString() : '',
-							MeterId: meterId.toString(),
-							PropertyId: meterDataObj[meterId].toString(),
-						};
-
-						// Usage.updateOrCreate(meterReading_obj);
-						meterReading.push(meterReading_obj);
-					});
-
-					try {
-						await Usage.bulkCreate(meterReading);
-					} catch (err) {
-						console.log(`bulk-create error for meter # ${meterId} ---> ${err}`);
+							// console.log(meterReadingObj);
+							Usage.updateOrCreate(meterReadingObj);
+							return meterReadingObj;
+						})
 					}
-				} else {
-					console.log(`No data for ${meterId} ----> ${meterDataObj[meterId]}`);
-				}
-			});
-		});
-		res.status(400).send('Property  created or updated.');
+				})
+		})
+
+		let results = await Promise.all(usages);
+		let filteredResults = results.filter(item => !!(item)).reduce((accum, curVal) => accum.concat(curVal));
+
+		filteredResults.forEach(reading => Usage.updateOrCreate(reading));
+		console.log(filteredResults.length)
+		// Usage.bulkCreate(filteredResults);
+		res.send(filteredResults);
 	} catch (error) {
 		console.log(error);
 	}
