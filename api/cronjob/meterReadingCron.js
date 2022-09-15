@@ -19,7 +19,10 @@ const config = {
 };
 
 const meterReadingCron = () => {
-    cron.schedule('2 * * * * *', () => {
+    // Running the cron job every 2 mins
+    cron.schedule('*/2 * * * *', () => {
+    // Running the cron job on the 1st day of each month
+    // cron.schedule('* * 1 1-12 *', () => {
         axios.all([
                     axios.post(My_DOMAIN + `/api/property`),
                     axios.post(My_DOMAIN + `/api/meter`),
