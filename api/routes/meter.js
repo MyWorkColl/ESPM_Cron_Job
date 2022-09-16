@@ -106,8 +106,8 @@ router.post('/', async (req, res, next) => {
 					object: true,
         };
         
-        // const propertyIdList = await Property.getIdList()
-        propertyIdList = [1677104, 2303907];
+        const propertyIdList = await Property.getIdList()
+        // propertyIdList = [1677104, 2303907];
 
         let association = propertyIdList.map((propertyId) => {
 
@@ -152,53 +152,20 @@ router.post('/', async (req, res, next) => {
                 
                 associatedMeter.forEach(item => {
                     item['meterId'].forEach(id => {
-											// return (
-											//     axios.get(BASE_URL + `/meter/${id}`, config)
-											//         .then(xml => {
-											//             let jsonData = parser.toJson(
-											//                 xml.data,
-											//                 options
-											//             );
-											//             let meterData = jsonData.meter;
-											//             let meterDataObj = {
-											//                                     id,
-											//                                     name: meterData.name,
-											//                                     type: meterData.type,
-											//                                     associationGroup: item.associationGroup,
-											//                                     unitOfMeasure: meterData.unitOfMeasure,
-											//                                     metered: meterData.metered,
-											//                                     firstBillDate: meterData.firstBillDate,
-											//                                     inUse: meterData.inUse,
-											//                                     accessLevel: meterData.accessLevel,
-											//                                     propertyRepresentation:item.propertyRepresentation,
-											//                                     PropertyId: item.propertyId,
-											//                                 };
-											//             // console.log(meterDataObj);
-											//             meterIdList.push(meterDataObj);
-											//             // return(meterDataObj)
-											//         })
-											// )
 
-											// let meterDataObj = {
-											// 	id,
-											// 	associationGroup: item.associationGroup,
-											// 	propertyRepresentation: item.propertyRepresentation,
-											// 	propertyId: item.propertyId,
-											// };
-
-                                            
-                                            meterIdList.push({
-																							id,
-																							associationGroup:
-																								item.associationGroup,
-																							propertyRepresentation:
-																								item.propertyRepresentation,
-																							propertyId: item.propertyId,
-																						});
-										})
+                        meterIdList.push({
+                            id,
+                            associationGroup:
+                                item.associationGroup,
+                            propertyRepresentation:
+                                item.propertyRepresentation,
+                            propertyId: item.propertyId,
+                        });
+                    })
                 })
                 // return meterIdList;
-                return meterIdList.map(async item => { 
+                console.log(meterIdList.length);
+                return meterIdList.slice(176,200).map(async item => { 
                     let xml = await axios.get(BASE_URL + `/meter/${item.id}`, config);
                     let jsonData = parser.toJson(xml.data, options);
                     let meterData = jsonData.meter;

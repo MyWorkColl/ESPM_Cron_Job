@@ -37,7 +37,7 @@ router.post('/', async (req, res, next) => {
 			res.send('no property data');
 			
 		} else {
-			let propertyList = propertyData.links.link.slice(0, 2);
+			let propertyList = propertyData.links.link;
 			
 			let properties = propertyList.map(item => { 
 				let propertyId = parseInt(item.id);
