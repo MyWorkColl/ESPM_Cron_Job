@@ -2,13 +2,14 @@
 
 const connection = require('../connection');
 const { Sequelize } = connection;
-const { STRING, FLOAT } = Sequelize;
+const { INTEGER, STRING, FLOAT } = Sequelize;
 
 const Score = connection.define(
 	'Score',
 	{
 		id: {
-			type: STRING,
+			type: INTEGER,
+			autoIncrement: true,
 			field: 'id',
 			primaryKey: true,
 		},
@@ -35,7 +36,7 @@ const Score = connection.define(
 		value: {
 			type: FLOAT,
 			field: 'value',
-		}
+		},
 	},
 	{
 		schema: 'ESPM',
@@ -43,18 +44,19 @@ const Score = connection.define(
 	}
 );
 
-// Score.updateOrCreate = function (property) {
-// 	const where = { id: property.id };
+Score.updateOrCreate = function (metric) {
+	let {PropertyId, endingYear, endingMonth, name} = metric
+	let where = { PropertyId, endingYear, endingMonth, name };
 
-// 	return Property.findOne({
-// 		where
-// 	})
-// 	.then(found => {
-// 		if (!found) {
-// 			return Property.create(property)
-// 		}
-// 		return Property.update(property, {where})
-// 	})
-// };
+	return Score.findOne({
+		where
+	})
+	.then(found => {
+		if (!found) {
+			return Score.create(metric)
+		}
+		return Score.update(metric, {where})
+	})
+};
 
 module.exports = Score

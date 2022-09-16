@@ -1,8 +1,8 @@
 const express = require('express');
 const axios = require('axios');
 const { Score } = require('../../db/models');
-const { config } = require('dotenv');
 const parser = require('xml2json');
+const moment = require('moment');
 
 require('dotenv').config();
 
@@ -12,9 +12,8 @@ router.use(express.json());
 const { ESPM_USERNAME, ESPM_PW, BASE_URL, ESPM_ACCOUNT_ID } = process.env;
 const auth = { 'username': ESPM_USERNAME, 'password': ESPM_PW}
 
-
 router.post('/', async (req, res, next) => {
-	let config = {
+	const config = {
 		headers: {
 			'content-type': 'application/xml',
 			'PM-Metrics':
@@ -23,21 +22,23 @@ router.post('/', async (req, res, next) => {
 		auth,
 	};
 	
-
 	const options = {
 		object: true
 	};
 
+	const endingYear = moment().subtract(1, 'years').format('YYYY');
+
 	try {
 		// Handle 'Get Properties' api response
-		let {data} = await axios.get(
+		let { data } = await axios.get(
 			BASE_URL + `/account/${ESPM_ACCOUNT_ID}/property/list`,
 			{
-					headers: {
-						'content-type': 'application/xml'
-					},
-					auth,
-			});
+				headers: {
+					'content-type': 'application/xml',
+				},
+				auth,
+			}
+		);
 		let dataObj = parser.toJson(data, options);
 		let propertyData = dataObj.response;
 		
@@ -49,7 +50,7 @@ router.post('/', async (req, res, next) => {
 			
 			let metrics = propertyList.map(item => { 
 				let propertyId = parseInt(item.id);
-				let endingYear = 2021;
+				// let endingYear = 2021;
 				// December is the ending month
 				let endingMonth = 12;
 
@@ -63,11 +64,11 @@ router.post('/', async (req, res, next) => {
 					.then((propertyObj) => {
 						let { propertyMetrics } = propertyObj;
 						let metric = (typeof propertyMetrics.metric === 'undefined') ? '' : propertyMetrics.metric;
-						console.log(metric);
+						// console.log(metric);
 
 						// filter the metric 
 						filtered = metric.filter(item => !!(item.uom) )
-						return metric.map(item => {
+						return filtered.map((item) => {
 							let { name, uom, value } = item;
 
 							let metricObj = {
@@ -77,13 +78,13 @@ router.post('/', async (req, res, next) => {
 								endingYear,
 								endingMonth,
 								value,
-								propertyId: propertyId,
+								PropertyId: propertyId,
 							};
 
+							console.log(metricObj);
 							Score.updateOrCreate(metricObj);
 							return metricObj;
-
-						 });
+						});
 
 
 					});

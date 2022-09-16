@@ -21,5 +21,6 @@ Score.belongsTo(Property)
 module.exports = {
     Property,
     Meter,
-    Usage
+    Usage,
+    Score
 }

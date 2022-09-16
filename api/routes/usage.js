@@ -4,7 +4,7 @@ const moment = require('moment');
 const axios = require('axios');
 const parser = require('xml2json');
 
-const { Usage, Meter } = require('../../db/models');
+const { Usage} = require('../../db/models');
 require('dotenv').config();
 
 router.use(express.json());

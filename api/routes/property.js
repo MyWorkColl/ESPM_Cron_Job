@@ -1,7 +1,6 @@
 const express = require('express');
 const axios = require('axios');
 const { Property } = require('../../db/models');
-const { config } = require('dotenv');
 const parser = require('xml2json');
 
 require('dotenv').config();
