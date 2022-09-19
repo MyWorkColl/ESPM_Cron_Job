@@ -165,7 +165,7 @@ router.post('/', async (req, res, next) => {
                 })
                 // return meterIdList;
                 console.log(meterIdList.length);
-                return meterIdList.slice(176,200).map(async item => { 
+                return meterIdList.map(async item => { 
                     let xml = await axios.get(BASE_URL + `/meter/${item.id}`, config);
                     let jsonData = parser.toJson(xml.data, options);
                     let meterData = jsonData.meter;

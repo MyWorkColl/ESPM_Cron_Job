@@ -29,23 +29,6 @@ router.post('/', async (req, res, next) => {
 	const endingYear = moment().subtract(1, 'years').format('YYYY');
 
 	try {
-		// // Handle 'Get Properties' api response
-		// let { data } = await axios.get(
-		// 	BASE_URL + `/account/${ESPM_ACCOUNT_ID}/property/list`,
-		// 	{
-		// 		headers: {
-		// 			'content-type': 'application/xml',
-		// 		},
-		// 		auth,
-		// 	}
-		// );
-		// let dataObj = parser.toJson(data, options);
-		// let propertyData = dataObj.response;
-		
-		// if (typeof propertyData.links === 'undefined' || typeof propertyData.links.link == 'undefined') {
-		// 	res.send('no property data');
-			
-		// } else {
 		let propertyIdList = await Property.getIdList();
 		// propertyIdList = propertyIdList.slice(0, 2);
 
@@ -87,8 +70,8 @@ router.post('/', async (req, res, next) => {
 								PropertyId: propertyId,
 							};
 
-							console.log(metricObj);
-							// Score.updateOrCreate(metricObj);
+							// console.log(metricObj);
+							Score.updateOrCreate(metricObj);
 							return metricObj;
 						});
 					});

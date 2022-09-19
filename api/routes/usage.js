@@ -96,7 +96,7 @@ router.post('/', async (req, res, next) => {
 		})
 
 		let results = await Promise.all(usages);
-		let filteredResults = results.filter(item => !!(item)).reduce((accum, curVal) => accum.concat(curVal));
+		let filteredResults = (results.length > 0) ? results.filter(item => !!(item)).reduce((accum, curVal) => accum.concat(curVal)) : results;
 
 		filteredResults.forEach(reading => Usage.updateOrCreate(reading));
 		console.log(filteredResults.length)
