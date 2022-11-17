@@ -40,8 +40,8 @@ db.sync()
 /**
  * Cron Job
  */
-// meterCron();
-// meterReadingCron();
+meterCron();
+meterReadingCron();
 	
 
 // app.listen(PORT, () => {
