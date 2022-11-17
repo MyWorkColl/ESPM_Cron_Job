@@ -35,8 +35,6 @@ router.post('/', async (req, res, next) => {
 		if(propertyIdList.length > 0){
 			
 			let metrics = propertyIdList.map((propertyId) => {
-				// let propertyId = parseInt(item.id);
-				// let endingYear = 2021;
 				// December is the ending month
 				let endingMonth = 12;
 

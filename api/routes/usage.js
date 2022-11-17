@@ -4,7 +4,7 @@ const moment = require('moment');
 const axios = require('axios');
 const parser = require('xml2json');
 
-const { Usage} = require('../../db/models');
+const { Usage, Error } = require('../../db/models');
 require('dotenv').config();
 
 router.use(express.json());
@@ -20,6 +20,7 @@ router.post('/', async (req, res, next) => {
 	const config = {
 		headers: {
 			'content-type': 'application/xml',
+			'Retry-After': '3600'
 		},
 		auth,
 	};
@@ -28,24 +29,23 @@ router.post('/', async (req, res, next) => {
 		object: true,
 	};
 
-	const endDate = moment().format('YYYY-MM-DD');
-	const startDate = moment().subtract(3, 'months').format('YYYY-MM-DD');
-	
-	console.log(`duration from ${startDate} to ${endDate}`)
+	// const startDate = moment().subtract(6, 'months').format('YYYY-MM-DD');
+	// const endDate = moment().format('YYYY-MM-DD');
+	const startDate = '2019-01-01';
+	const endDate = '2019-12-31';
 
-	// let meterReading = [];
 	try {
 		// Handle 'Get Associated Property Meters' api response
 		const response = await axios.get(
 			My_DOMAIN + `/api/meter`
 		);
 		
-		const data = response.data;
+		const { data } = response;
 		
 		let meterIdArray = data.map((item) => item.id);
 
-		console.log(`meter id list is ---->${meterIdArray}`)
-
+		// console.log(`meter id list is ---->${meterIdArray.length}`)
+			
 		// Handle 'Get Meter Consumption Data' API call
 		let usages = data.map(item => {
 			let meterId = item.id;
@@ -64,7 +64,14 @@ router.post('/', async (req, res, next) => {
 						typeof data.meterData === 'undefined' ||
 						typeof data.meterData.meterConsumption == 'undefined'
 					) {
-						console.log(`no usage data for ${meterId}`);
+						// const errorObj = {
+						// 	errorMsg: 'Empty Data - No usage data found',
+						// 	meter_id: meterId,
+						// 	property_id: PropertyId,
+						// };
+						// Error.create(errorObj);
+
+						return {};
 					} else {
 						let { meterConsumption } = data.meterData;
 						
@@ -87,23 +94,32 @@ router.post('/', async (req, res, next) => {
 								PropertyId,
 							};
 
-							// console.log(meterReadingObj);
 							Usage.updateOrCreate(meterReadingObj);
 							return meterReadingObj;
 						})
 					}
+				}).catch(error => {
+					const errorMsg = error.message;
+
+					if (errorMsg !== 'Request failed with status code 404') {
+						const errorObj = {
+							errorMsg,
+							meter_id: meterId,
+							property_id: PropertyId,
+						};
+						Error.create(errorObj);
+					}
+					
+					return {};
 				})
+			
 		})
 
 		let results = await Promise.all(usages);
-		let filteredResults = (results.length > 0) ? results.filter(item => !!(item)).reduce((accum, curVal) => accum.concat(curVal)) : results;
+		res.send(results);
 
-		filteredResults.forEach(reading => Usage.updateOrCreate(reading));
-		console.log(filteredResults.length)
-		// Usage.bulkCreate(filteredResults);
-		res.send(filteredResults);
 	} catch (error) {
-		console.log(error);
+		console.log(`${error.message}`);
 	}
 });
 

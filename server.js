@@ -12,6 +12,7 @@ const cron = require('node-cron');
 const https = require('https');
 const fs = require("fs");
 
+const { meterCron } = require('./api/cronjob/meterCron');
 const { meterReadingCron } = require('./api/cronjob/meterReadingCron');
 const startUpCallback = () => console.log(`listening on port ${PORT}`)
 
@@ -39,7 +40,7 @@ db.sync()
 /**
  * Cron Job
  */
-
+// meterCron();
 // meterReadingCron();
 	
 
