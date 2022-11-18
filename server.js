@@ -16,7 +16,6 @@ const { meterCron } = require('./api/cronjob/meterCron');
 const { meterReadingCron } = require('./api/cronjob/meterReadingCron');
 const startUpCallback = () => console.log(`listening on port ${PORT}`)
 
-console.log(process.env.NODE_ENV);
 
 db.sync()
 	.then(() => {
