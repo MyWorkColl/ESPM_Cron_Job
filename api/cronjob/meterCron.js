@@ -15,7 +15,7 @@ const meterCron = () => {
 	// cron.schedule('*/2 * * * *', () => {
 	// Running the cron job on the 1st day of each month
 	// Every Sunday at 23:00 
-	cron.schedule('0 6 * * *', () => {
+	cron.schedule('0 23 * * *', () => {
 		axios
 			.all([
 				axios.post(My_DOMAIN + `/api/property`),

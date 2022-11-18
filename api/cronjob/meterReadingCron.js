@@ -11,7 +11,7 @@ const auth = { username: ESPM_USERNAME, password: ESPM_PW };
 const cron = require('node-cron');
 
 const meterReadingCron = () => {
-    cron.schedule('0 6 * * *', () => {
+    cron.schedule('0 23 * * *', () => {
 		axios
 			.all([axios.post(My_DOMAIN + `/api/usage`)])
 			.catch((error) => {
