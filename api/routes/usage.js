@@ -29,10 +29,12 @@ router.post('/', async (req, res, next) => {
 		object: true,
 	};
 
-	// const startDate = moment().subtract(6, 'months').format('YYYY-MM-DD');
-	// const endDate = moment().format('YYYY-MM-DD');
-	const startDate = '2019-01-01';
-	const endDate = '2019-12-31';
+	const startDate = moment().subtract(2, 'months').format('YYYY-MM-DD');
+	const endDate = moment().format('YYYY-MM-DD');
+
+	// Testing with specific dates
+	// const startDate = '2022-11-01';
+	// const endDate = '2022-11-30';
 
 	try {
 		// Handle 'Get Associated Property Meters' api response
