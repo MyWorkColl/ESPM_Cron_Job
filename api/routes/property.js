@@ -47,7 +47,6 @@ router.post('/', async (req, res, next) => {
 					.then(propertyObj => {
 							let { property } = propertyObj;
 
-							console.log(`Total number of properties ---> ${property.length}`)
 							const {
 								name,
 								address,

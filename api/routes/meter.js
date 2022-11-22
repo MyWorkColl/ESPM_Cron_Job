@@ -46,13 +46,20 @@ router.post('/', async (req, res, next) => {
 
             const meterDataByProperty = propertyIdList.slice(start,end).map((propertyId) => {
                 return axios
-                    .post(My_DOMAIN + `/api/meter/property/${propertyId}`)
+                    .post(My_DOMAIN + `./api/meter/property/${propertyId}`)
                     .then((response) => {
+                        console.log
                         return response.data;
                     })
                     .catch((error) => {
                         console.log(`ERROR: ${propertyId} -------> ${error.message}`);
-                        throw error;
+                        const errorObj = {
+                            errorMsg: `Bulk Post Meter Data Failed: ${error.message}`,
+                            property_id: propertyId,
+                        };
+                        Error.updateOrCreate(errorObj);
+
+                        return errorObj;
                     });
             });
 
@@ -143,7 +150,6 @@ router.post('/property/:id', async (req, res, next) => {
 
                         })
                         .catch(error => {
-                            // console.log(`${item.id}--> ${error.message}`)
 
                             const errorObj = {
                                 errorMsg: error.message,
