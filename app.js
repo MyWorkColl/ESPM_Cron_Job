@@ -17,13 +17,13 @@ app.use('/assets', express.static(path.join(__dirname, './src/assets')));
 
 app.use(express.json());
 
-// app.get('/', (req, res) => {
-//   res.sendFile(path.join(__dirname, '../src/index.html'));
-// });
-
 app.get('/', (req, res) => {
-  res.send('Create cron job!')
-})
+  res.sendFile(path.join(__dirname, '../src/index.html'));
+});
+
+// app.get('/', (req, res) => {
+//   res.send('Create cron job!')
+// })
 
 // app.use('/api/property', propertyRouter);
 // app.use('/api/meter', meterSubRouter);
