@@ -23,7 +23,7 @@
   },
   "scripts": {
     "start:dev": "nodemon ./server.js NODE_ENV=development",
-    "start": "node server.js",
+    "start": "node server.js"
   },
   "repository": {
     "type": "git",
