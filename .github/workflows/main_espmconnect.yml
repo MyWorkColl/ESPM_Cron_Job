@@ -52,5 +52,5 @@ jobs:
         with:
           app-name: 'ESPMconnect'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_AD3FB155CC61401D8EB6EF8E83FAD89C }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_44B3A769CD104C558B9C4410E8099D4D }}
           package: .
